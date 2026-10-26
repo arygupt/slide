@@ -8,6 +8,8 @@ Pacejka Magic Formula with transient slip. The physics runs at a fixed 1 kHz wit
 deterministic output, while the renderer runs uncapped (600+ FPS at 3200×1800 on
 an M2 Max) and interpolates between physics steps.
 
+**[Play it in the browser →](https://arygupt.github.io/slide/)** (opens on autopilot; press P to drive)
+
 ![Slide running the circuit on autopilot](docs/screenshot.png)
 
 The physics core is a dependency-free static library. On top of it sit three
