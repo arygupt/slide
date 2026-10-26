@@ -1,0 +1,52 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 25, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "release",
+      "displayName": "Release",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    },
+    {
+      "name": "web",
+      "displayName": "Web (Emscripten)",
+      "binaryDir": "${sourceDir}/build-web",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "SLIDE_WEB": "ON",
+        "SLIDE_BUILD_TESTS": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "release", "configurePreset": "release", "jobs": 0 },
+    { "name": "web", "configurePreset": "web", "jobs": 0 }
+  ],
+  "testPresets": [
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "output": { "outputOnFailure": true }
+    }
+  ],
+  "workflowPresets": [
+    {
+      "name": "release",
+      "displayName": "Configure, build and test",
+      "steps": [
+        { "type": "configure", "name": "release" },
+        { "type": "build", "name": "release" },
+        { "type": "test", "name": "release" }
+      ]
+    },
+    {
+      "name": "web",
+      "displayName": "Build the browser version into build-web/",
+      "steps": [
+        { "type": "configure", "name": "web" },
+        { "type": "build", "name": "web" }
+      ]
+    }
+  ]
+}

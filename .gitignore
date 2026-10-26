@@ -1,0 +1,6 @@
+build/
+.cache/
+.DS_Store
+slide_telemetry_*.csv
+slide_*.png
+build-web/

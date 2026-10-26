@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Slide - vehicle dynamics</title>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; background: #0e1116; }
+    canvas { display: block; outline: none; }
+    #status {
+      position: fixed; inset: 0; display: grid; place-items: center;
+      color: #8b949e; font: 14px ui-monospace, Menlo, monospace;
+    }
+  </style>
+</head>
+<body>
+  <div id="status">Loading Slide…</div>
+  <canvas id="canvas" tabindex="-1" oncontextmenu="event.preventDefault()"></canvas>
+  <script>
+    var statusEl = document.getElementById('status');
+    var Module = {
+      canvas: document.getElementById('canvas'),
+      // Start in autopilot so the page shows something without input;
+      // press P to take over.
+      arguments: location.hash === '#drive' ? [] : ['--demo'],
+      setStatus: function (text) {
+        statusEl.textContent = text;
+        statusEl.style.display = text ? 'grid' : 'none';
+      },
+      onRuntimeInitialized: function () { Module.canvas.focus(); },
+    };
+    window.addEventListener('click', function () { Module.canvas.focus(); });
+  </script>
+  {{{ SCRIPT }}}
+</body>
+</html>
