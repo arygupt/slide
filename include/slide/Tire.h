@@ -23,9 +23,9 @@ struct TireOutput {
     double utilization = 0.0;  // |F| / gripLimit
 };
 
-// Pacejka Magic Formula tire with load-sensitive friction and similarity-based
-// combined slip: slips are normalized by their peak values so the force vector
-// traces a friction ellipse instead of being clipped to a circle.
+// Sine-wave tire with load-sensitive friction and similarity-based combined
+// slip: slips are normalized by their peak values so the force vector traces a
+// friction ellipse instead of being clipped to a circle.
 class TireModel {
 public:
     explicit TireModel(const TireParams& params);
@@ -36,8 +36,8 @@ public:
     double longitudinalCurve(double slipRatio) const;
     double lateralCurve(double slipAngle) const;
 
-    double peakSlipRatio() const { return peakSlipRatio_; }
-    double peakSlipAngle() const { return peakSlipAngle_; }
+    double peakSlipRatio() const { return p_.peakSlipRatio; }
+    double peakSlipAngle() const { return p_.peakSlipAngle; }
 
     // Effective friction coefficient after load sensitivity and surface grip.
     double frictionCoefficient(double normalLoad, double surfaceGrip) const;
@@ -59,8 +59,6 @@ public:
 
 private:
     TireParams p_;
-    double peakSlipRatio_;
-    double peakSlipAngle_;
 };
 
 }  // namespace slide

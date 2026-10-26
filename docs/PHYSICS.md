@@ -41,16 +41,20 @@ within 3%). The step is deterministic: the same inputs give bit-identical states
 
 ## Tires
 
-**Pure slip.** The Pacejka Magic Formula, with the peak tied to load:
+**Pure slip.** A sine-wave grip curve, with the peak tied to load. With
+`s = |x| / x_peak`:
 
 ```
-F = D · sin(C · atan(B·x − E·(B·x − atan(B·x)))),   D = μ(Fz) · Fz
-μ(Fz) = μ0 · (1 − k_load · (Fz/Fz0 − 1))            (load sensitivity)
+F = D · sin(π/2 · s)                                      s ≤ 1   (rising to the peak)
+F = D · (1 − (1 − k_slide) · sin(π/2 · (s − 1)/(s_slide − 1)))   s > 1   (easing down to sliding grip)
+D = μ(Fz) · Fz,   μ(Fz) = μ0 · (1 − k_load · (Fz/Fz0 − 1))     (load sensitivity)
 ```
 
-`x` is slip ratio κ for Fx and slip angle α for Fy. Peak slips (κ ≈ 0.13,
-α ≈ 8°) are found by bisection on `C·atan(φ) = π/2`. Front and rear axles carry
-different tires (staggered 245/275), which gives about 1°/g of understeer.
+`x` is slip ratio κ for Fx and slip angle α for Fy. Force peaks at κ = 0.13 and
+α = 8.3° (6.6° on the rear), then falls to 78–80% of peak once the tire is fully
+sliding (a locked wheel, or 40° of slip angle), which is why ABS shortens stops.
+Front and rear axles carry different tires (staggered 245/275, with a sharper
+rear), which gives about 1.5°/g of understeer.
 
 **Combined slip** uses the similarity method. Each slip is normalized by its
 peak (`s_x = κ/κ_peak`, `s_y = α/α_peak`). Both curves are evaluated at the

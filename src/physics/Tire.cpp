@@ -6,40 +6,27 @@
 namespace slide {
 namespace {
 
-double magicFormula(double x, double B, double C, double E) {
-    const double bx = B * x;
-    return std::sin(C * std::atan(bx - E * (bx - std::atan(bx))));
-}
-
-// The curve peaks where C * atan(phi) = pi/2; phi(x) is monotonic for E < 1,
-// so a bisection on x finds the peak without sampling.
-double findPeak(double B, double C, double E) {
-    if (C <= 1.0) return 1.0;  // monotonic curve, no interior peak
-    const double target = std::tan(kPi / (2.0 * C));
-    double lo = 0.0;
-    double hi = 10.0;
-    for (int i = 0; i < 80; ++i) {
-        const double mid = 0.5 * (lo + hi);
-        const double bx = B * mid;
-        const double phi = bx - E * (bx - std::atan(bx));
-        (phi < target ? lo : hi) = mid;
-    }
-    return 0.5 * (lo + hi);
+// Unit-peak grip curve: a quarter sine up to the peak, then a quarter sine
+// down to the sliding grip. Odd in x, so negative slip gives negative force.
+double sineCurve(double x, double peak, double slide, double slideGrip) {
+    const double s = std::abs(x) / peak;
+    const double shape = s <= 1.0
+        ? std::sin(0.5 * kPi * s)
+        : 1.0 - (1.0 - slideGrip) * std::sin(0.5 * kPi * std::min(1.0, (s - 1.0) / (slide / peak - 1.0)));
+    return std::copysign(shape, x);
 }
 
 }  // namespace
 
 TireModel::TireModel(const TireParams& params)
-    : p_(params),
-      peakSlipRatio_(findPeak(params.Bx, params.Cx, params.Ex)),
-      peakSlipAngle_(findPeak(params.By, params.Cy, params.Ey)) {}
+    : p_(params) {}
 
 double TireModel::longitudinalCurve(double slipRatio) const {
-    return magicFormula(slipRatio, p_.Bx, p_.Cx, p_.Ex);
+    return sineCurve(slipRatio, p_.peakSlipRatio, p_.slideSlipRatio, p_.slideGripX);
 }
 
 double TireModel::lateralCurve(double slipAngle) const {
-    return magicFormula(slipAngle, p_.By, p_.Cy, p_.Ey);
+    return sineCurve(slipAngle, p_.peakSlipAngle, p_.slideSlipAngle, p_.slideGripY);
 }
 
 double TireModel::frictionCoefficient(double normalLoad, double surfaceGrip) const {
@@ -60,11 +47,11 @@ TireOutput TireModel::forces(double slipRatio, double slipAngle, double normalLo
 
     // Similarity method: scale both slips to "fractions of peak", evaluate each
     // pure-slip curve at the combined magnitude, then share it by direction.
-    const double sx = slipRatio / peakSlipRatio_;
-    const double sy = slipAngle / peakSlipAngle_;
+    const double sx = slipRatio / p_.peakSlipRatio;
+    const double sy = slipAngle / p_.peakSlipAngle;
     const double s = std::max(std::hypot(sx, sy), 1e-9);
-    out.Fx = grip * (sx / s) * longitudinalCurve(s * peakSlipRatio_);
-    out.Fy = grip * (sy / s) * lateralCurve(s * peakSlipAngle_);
+    out.Fx = grip * (sx / s) * longitudinalCurve(s * p_.peakSlipRatio);
+    out.Fy = grip * (sy / s) * lateralCurve(s * p_.peakSlipAngle);
     out.utilization = std::hypot(out.Fx, out.Fy) / grip;
     return out;
 }

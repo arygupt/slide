@@ -51,9 +51,15 @@ struct TireParams {
     double mu = 1.10;               // peak friction coefficient at Fz0
     double loadSensitivity = 0.12;  // fractional mu lost per +100% load
 
-    // Magic Formula pure-slip shape factors; the peak D comes from mu * Fz.
-    double Bx = 13.0, Cx = 1.50, Ex = 0.0;   // longitudinal, input = slip ratio
-    double By = 11.5, Cy = 1.45, Ey = -0.3;  // lateral, input = slip angle [rad]
+    // Sine-wave grip curve: force rises as a quarter sine to mu * Fz at the
+    // peak slip, then eases down along another quarter sine to the sliding
+    // grip, reached at the "slide" slip and held beyond it.
+    double peakSlipRatio = 0.13;
+    double peakSlipAngle = deg(8.3);   // [rad]
+    double slideSlipRatio = 1.0;       // locked wheel
+    double slideSlipAngle = deg(40.0);
+    double slideGripX = 0.78;          // sliding grip as a fraction of peak
+    double slideGripY = 0.80;
 
     double relaxationLengthX = 0.12;  // [m]
     double relaxationLengthY = 0.30;  // [m]
@@ -195,7 +201,7 @@ struct VehicleParams {
                     .rollCenterHeight = 0.10,
                     .maxBrakeTorque = 1300.0};
     TireParams frontTire;  // 245/40 R18
-    TireParams rearTire{.width = 0.275, .mu = 1.12, .By = 14.5};  // staggered 275s
+    TireParams rearTire{.width = 0.275, .mu = 1.12, .peakSlipAngle = deg(6.6)};  // staggered 275s
     SteeringParams steering;
     EngineParams engine;
     DrivetrainParams drivetrain;
